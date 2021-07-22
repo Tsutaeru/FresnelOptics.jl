@@ -1,0 +1,4 @@
+name = "FresnelOptics"
+uuid = "b4af267d-4eba-4511-994c-824ea3f473a1"
+authors = ["yctai <brianyjtai1994@gmail.com>"]
+version = "0.1.0"
