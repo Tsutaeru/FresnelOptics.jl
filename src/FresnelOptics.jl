@@ -11,4 +11,7 @@ const MatIO = AbstractMatrix # In/Out Matrix
 
 const 𝚷 = 2.0 * π
 
+include("./utils/la.jl")
+include("./fresnel.jl")
+
 end # module
