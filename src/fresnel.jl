@@ -1,3 +1,5 @@
+export transmit!, reflect!, propagate!
+
 transmit(n::Real, κ::Real; forward::Bool=true) = forward ? transmit(1.00027, 0.0, n, κ) : transmit(n, κ, 1.00027, 0.0)
 
 function transmit(ni::Real, κi::Real, nj::Real, κj::Real)
@@ -25,9 +27,44 @@ function reflect(ni::Real, κi::Real, nj::Real, κj::Real)
     return m, atan(abs(y), abs(x))
 end
 
-propagate(d::Real, k::Real) = 1.0, 1.00027 * d * k
+propagate(d::Real, k::Real; forward::Bool=true) = forward ? (1.0, 1.00027 * d * k) : (1.0, -1.00027 * d * k)
 
 function propagate(n::Real, κ::Real, d::Real, k::Real)
     dk = d * k
     return exp(-κ * dk), n * dk
+end
+
+for fname in (:transmit, :reflect)
+    fname! = Symbol(fname, '!')
+    @eval begin
+        function $(fname!)(rs::VecIO, θs::VecIO, n::VecI, κ::VecI; forward::Bool=true)
+            @inbounds for i in eachindex(rs)
+                ri, θi = $(fname)(n[i], κ[i]; forward)
+                rs[i] *= ri
+                θs[i] += θi
+            end
+        end
+        function $(fname!)(rs::VecIO, θs::VecIO, n1::VecI, κ1::VecI, n2::VecI, κ2::VecI)
+            @inbounds for i in eachindex(rs)
+                ri, θi = $(fname)(n1[i], κ1[i], n2[i], κ2[i])
+                rs[i] *= ri
+                θs[i] += θi
+            end
+        end
+    end
+end
+
+function propagate!(rs::VecIO, θs::VecIO, d::Real, k::Real; forward::Bool=true)
+    ϕ = forward ? 1.00027 * d * k : -1.00027 * d * k
+    @simd for i in eachindex(θs)
+        @inbounds θs[i] += ϕ
+    end
+end
+
+function propagate!(rs::VecIO, θs::VecIO, n::VecI, κ::VecI, d::Real, k::Real)
+    dk = d * k
+    @inbounds for i in eachindex(rs)
+        rs[i] *= exp(-κ[i] * dk)
+        θs[i] += n[i] * dk
+    end
 end
