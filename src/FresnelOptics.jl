@@ -11,7 +11,10 @@ const MatIO = AbstractMatrix # In/Out Matrix
 
 const 𝚷 = 2.0 * π
 
+using LinearAlgebra.BLAS: gemv!
+
 include("./utils/la.jl")
 include("./fresnel.jl")
+include("./lorentz.jl")
 
 end # module
