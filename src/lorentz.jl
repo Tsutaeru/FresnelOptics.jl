@@ -46,11 +46,11 @@ struct LorentzModel
     end
 end
 
-function setup!(obj::LorentzModel, ωs::VecI)
+function setup!(obj::LorentzModel, fs::VecI)
     re_params = obj.re_params
     im_params = obj.im_params
     @simd for i in eachindex(1:obj.nExp)
-        @inbounds re_params[i], im_params[i] = abs2(ωs[i]), ωs[i]
+        @inbounds re_params[i], im_params[i] = abs2(fs[i]), fs[i]
     end
     return nothing
 end
@@ -78,8 +78,6 @@ function setup!(obj::LorentzModel, fs::VecI, Ωs::VecI, γs::VecI)
     end
     return nothing
 end
-
-apply!(ϵ12::MatIO, obj::LorentzModel, ϵc::Real, ωp::Real) = apply!(view(ϵ12, :, 1), view(ϵ12, :, 2), obj, ϵc, ωp)
 
 function apply!(ϵ1::VecIO, ϵ2::VecIO, obj::LorentzModel, ϵc::Real, ωp::Real)
     @simd for i in eachindex(1:obj.nExp)
