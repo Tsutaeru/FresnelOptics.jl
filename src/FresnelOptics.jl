@@ -17,5 +17,6 @@ include("./utils/la.jl")
 include("./fresnel.jl")
 include("./lorentz.jl")
 include("./dielectric.jl")
+include("./layers.jl")
 
 end # module

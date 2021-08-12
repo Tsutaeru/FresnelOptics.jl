@@ -1,7 +1,7 @@
 name = "FresnelOptics"
 uuid = "b4af267d-4eba-4511-994c-824ea3f473a1"
 authors = ["yctai <brianyjtai1994@gmail.com>"]
-version = "0.1.1"
+version = "0.1.2"
 
 [deps]
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"

@@ -79,24 +79,24 @@ struct LorentzModel
     end
 end
 
-function setup!(obj::LorentzModel, fs::VecI)
-    re_params = obj.re_params
-    im_params = obj.im_params
-    @simd for i in eachindex(1:obj.nExp)
+function setup!(o::LorentzModel, fs::VecI)
+    re_params = o.re_params
+    im_params = o.im_params
+    @simd for i in eachindex(1:o.nExp)
         @inbounds re_params[i], im_params[i] = abs2(fs[i]), fs[i]
     end
     return nothing
 end
 
-function setup!(obj::LorentzModel, fs::VecI, Ωs::VecI, γs::VecI)
-    one2nExp  = eachindex(1:obj.nExp)
-    ratios    = obj.ratios
-    re_params = obj.re_params
-    im_params = obj.im_params
-    re_kernel = obj.re_kernel
-    im_kernel = obj.im_kernel
+function setup!(o::LorentzModel, fs::VecI, Ωs::VecI, γs::VecI)
+    one2nExp  = eachindex(1:o.nExp)
+    ratios    = o.ratios
+    re_params = o.re_params
+    im_params = o.im_params
+    re_kernel = o.re_kernel
+    im_kernel = o.im_kernel
 
-    for j in 1:obj.nLor
+    for j in 1:o.nLor
         @inbounds Ωj2 = abs2(Ωs[j])
         @inbounds γj  = γs[j]
         @simd for i in one2nExp
@@ -112,13 +112,13 @@ function setup!(obj::LorentzModel, fs::VecI, Ωs::VecI, γs::VecI)
     return nothing
 end
 
-function apply!(ϵ1::VecIO, ϵ2::VecIO, obj::LorentzModel, ϵc::Real, ωp::Real)
-    @simd for i in eachindex(1:obj.nExp)
+function apply!(ϵ1::VecIO, ϵ2::VecIO, o::LorentzModel, ϵc::Real, ωp::Real)
+    @simd for i in eachindex(1:o.nExp)
         @inbounds ϵ1[i], ϵ2[i] = ϵc, 0.0
     end
 
     ωp2 = ωp * ωp
-    gemv!('N', ωp2, obj.re_kernel, obj.ratios, true, ϵ1)
-    gemv!('N', ωp2, obj.im_kernel, obj.ratios, true, ϵ2)
+    gemv!('N', ωp2, o.re_kernel, o.ratios, true, ϵ1)
+    gemv!('N', ωp2, o.im_kernel, o.ratios, true, ϵ2)
     return nothing
 end
