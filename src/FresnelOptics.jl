@@ -16,5 +16,6 @@ using LinearAlgebra.BLAS: gemv!
 include("./utils/la.jl")
 include("./fresnel.jl")
 include("./lorentz.jl")
+include("./dielectric.jl")
 
 end # module

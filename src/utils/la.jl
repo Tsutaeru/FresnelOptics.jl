@@ -1,3 +1,9 @@
+function inf_geometric_sum(r::Real, θ::Real)
+    x = 1.0 - r * cos(θ)
+    y = -r * sin(θ)
+    return inv(apy2(x, y)), -atan(y, x)
+end
+
 function sqr2(x::Real, y::Real)
     isnan(x) && return x
     isnan(y) && return y

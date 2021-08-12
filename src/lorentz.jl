@@ -1,8 +1,9 @@
 export lorentz_factors, LorentzModel, setup!, apply!
 
-lorentz_factors(;ϵc, ωp, fs, Ωs, γs) = lorentz_factors(ϵc, ωp, fs, Ωs, γs)
+# Deprecated, will be moved to Osnaps.jl in the future.
+lorentz_factors(::Type{T}; ϵc, ωp, fs, Ωs, γs) where T = lorentz_factors(T, ϵc, ωp, fs, Ωs, γs)
 
-function lorentz_factors(ϵc::Real, ωp::Real, fs::NTuple{N}, Ωs::NTuple{N}, γs::NTuple{N}) where N
+function lorentz_factors(::Type{Vector}, ϵc::Real, ωp::Real, fs::NTuple{N}, Ωs::NTuple{N}, γs::NTuple{N}) where N
     if @generated
         a = Vector{Any}(undef, 3*N+2)
         @inbounds a[1] = :ϵc
@@ -25,6 +26,38 @@ function lorentz_factors(ϵc::Real, ωp::Real, fs::NTuple{N}, Ωs::NTuple{N}, γ
         end
         return a
     end
+end
+
+function lorentz_factors(::Type{Tuple}, ϵc::Real, ωp::Real, fs::NTuple{N}, Ωs::NTuple{N}, γs::NTuple{N}) where N
+    if @generated
+        a = Vector{Any}(undef, 3*N+2)
+        @inbounds a[1] = :ϵc
+        @inbounds a[2] = :ωp
+        @inbounds for i in 1:N
+            a[i+2]     = :(fs[$i])
+            a[i+2+  N] = :(Ωs[$i])
+            a[i+2+2*N] = :(γs[$i])
+        end
+        return quote
+            $(Expr(:meta, :inline))
+            @inbounds return $(Expr(:tuple, a...))
+        end
+    else
+        return ntuple(i -> lorentz_factors(i, ϵc, ωp, fs, Ωs, γs), 3*N+2)
+    end
+end
+
+function lorentz_factors(ix::Int, ϵc::Real, ωp::Real, fs::NTuple{N}, Ωs::NTuple{N}, γs::NTuple{N}) where N
+    ix <= 0  && error("BoundsError: lorentz_factors(ix = $ix, ...)")
+    ix == 1  && return ϵc
+    ix == 2  && return ωp
+    lx  = 2; rx = 2 + N
+    ix <= rx && return fs[ix - lx]
+    lx += N; rx += N
+    ix <= rx && return Ωs[ix - lx]
+    lx += N; rx += N
+    ix <= rx && return γs[ix - lx]
+    error("BoundsError: lorentz_factors(ix = $ix, ...)")
 end
 
 struct LorentzModel
